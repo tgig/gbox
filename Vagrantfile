@@ -52,10 +52,18 @@ Vagrant.configure("2") do |config|
     # data science
     # pip install -U scikit-learn
 
-   #install npm
+    #install nvm
+    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+    nvm install stable
+    nvm alias default stable
+
+    #install npm
     apt-get install -y nodejs
     apt-get install -y npm
     npm install npm@latest -g
+
+    #install express
+    npm install --save express
 
     # react create app
     # npm install -g create-react-app
@@ -70,6 +78,9 @@ Vagrant.configure("2") do |config|
     # echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
     # apt-get update
     # apt-get install -y yarn
+
+    # install google cloud sdk manually
+    # https://cloud.google.com/sdk/docs/#linux
     
   SHELL
 
