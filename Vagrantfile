@@ -78,6 +78,13 @@ Vagrant.configure("2") do |config|
     $PYTHON_PATH -m ensurepip
     $PIP_PATH install --upgrade pip setuptools
 
+    $PIP_PATH install awscli
+    $PIP_PATH install httpie
+    $PIP_PATH install -U pyopenssl==0.13.1 pyasn1 ndg-httpsclient
+    $PIP_PATH install virtualenv
+    $PIP_PATH install virtualenvwrapper
+
+
     echo -e "\n------------- Setup virtualenv and virtualenvwrapper ---------------\n"
 
     mkdir -m775 $HOME_PATH/.virtualenvs  # default virtualenv directory
@@ -90,7 +97,7 @@ Vagrant.configure("2") do |config|
     echo "export VIRTUALENVWRAPPER_VIRTUALENV=$PYTHON_BASEPATH/bin/virtualenv" >> $HOME_PATH/.bashrc
     echo "export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--system-site-packages'" >> $HOME_PATH/.bashrc
     echo "source $PYTHON_BASEPATH/bin/virtualenvwrapper.sh" >> $HOME_PATH/.bashrc
-
+    
     echo -e "\n------------------------ Installing NodeJS -------------------------\n"
 
     curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
@@ -99,7 +106,9 @@ Vagrant.configure("2") do |config|
 
     echo -e "\n----------------- Install global Linux utilities -------------------\n"
 
-    apt-get install -y python-pip
+    # this should be installed via python2.7.13 above
+    #apt-get install -y python-pip 
+    
     apt-get install -y python-dev libssl-dev libffi-dev
     apt-get install -y curl
     apt-get install -y vim
@@ -121,28 +130,17 @@ Vagrant.configure("2") do |config|
     apt-get install -y pulseaudio
     apt-get install -y alsa-base
 
-    sudo usermod -a -G audio vagrant # put vagrant user in audio group
-    pulseaudio --start -D
-    pulseaudio --start -D # have to run it twice to initialize, weird but true
-    sudo modprobe -v snd-hda-intel # associate the audio card
+    # put vagrant user in audio group
+    usermod -a -G audio vagrant 
+    # associate the audio card
+    modprobe -v snd-hda-intel 
 
     echo "###################################################################"
     echo "DON'T FORGET TO RUN alsamixer TO UNMUTE & RAISE VOLUME FOR SPEAKERS"
+    echo "MAY NEED TO REBOOT FOR DRIVERS TO KICK IN"
     echo "###################################################################"
 
-    echo -e "\n---------------- Install global Python utilities ------------------\n"
-
-    pip install awscli
-    pip install httpie
-    pip install -U pyopenssl==0.13.1 pyasn1 ndg-httpsclient
-    pip install virtualenv
-    pip install virtualenvwrapper
-
-    #echo -e "\n----------------------------- Upgrade ----------------------------\n"
-
-    #apt-get -q -y upgrade
-    #apt-get -q -y dist-upgrade
-
+    
   SHELL
 
   config.vm.provision "file", source: "~/.aws", destination: "~/"
