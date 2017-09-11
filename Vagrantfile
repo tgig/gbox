@@ -6,6 +6,7 @@ Vagrant.configure("2") do |config|
 
   # Configurations
   config.vm.define "gbox"  # define vagrant machine
+  config.vm.hostname = "gbox"
   config.vm.provider "virtualbox" do |vb|
     vb.name = "gbox"  # set virtual box name
     vb.memory = 2048
@@ -117,6 +118,7 @@ Vagrant.configure("2") do |config|
     apt-get install -y zip
     apt-get install -y python-psycopg2
     apt-get install -y ntp
+    service ntp restart && date -u
 
     echo -e "\n------------------- Install Sound utilities -----------------------\n"
 
@@ -140,6 +142,9 @@ Vagrant.configure("2") do |config|
     echo "MAY NEED TO REBOOT FOR DRIVERS TO KICK IN"
     echo "###################################################################"
 
+    
+    echo -e "\n------------------- Install Google Cloud? -----------------------\n"
+    echo -e "\nInstructions here: https://cloud.google.com/sdk/docs/quickstart-linux"
     
   SHELL
 
