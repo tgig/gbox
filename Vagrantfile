@@ -30,11 +30,15 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 3000, host: 3000, auto_correct: true
   config.vm.network "forwarded_port", guest: 8888, host: 8888, auto_correct: true
 
-  config.vm.synced_folder "/Users/travisgiggy/Documents/Travis/code", "/code"
+  config.vm.synced_folder "/Users/travis/Documents", "/code"
+  #config.vm.provision "file", source: "~/.aws", destination: "~/"
+  config.vm.synced_folder "/Users/travis/.aws", "/home/vagrant/.aws"
 
   config.vm.provision "shell", inline: <<-SHELL
 
-    echo -e "\n------------------------- Beginning setup --------------------------\n"
+    echo -e ""
+    echo -e "------------------------- Beginning setup --------------------------"
+    echo -e ""
 
     # Define script path variables
     HOME_PATH="/home/vagrant"
@@ -45,16 +49,16 @@ Vagrant.configure("2") do |config|
     # Suppress non-fatal warning (dpkg-preconfigure: unable to re-open std-in)
     export DEBIAN_FRONTEND=noninteractive
 
-    echo -e "\n----------------------------- Update -------------------------------\n"    
+    echo -e "----------------------------- Update -------------------------------"
 
     apt-get -q update
 
-    echo -e "\n----------- Satisfy build dependencies for Python 2.7.13 -----------\n"
+    echo -e "----------- Satisfy build dependencies for Python 2.7.13 -----------"
 
     apt-get -q -y install build-essential
     apt-get -q -y build-dep python2.7
 
-    echo -e "\n-------- Downloading and compiling Python 2.7.13 from source -------\n"
+    echo -e "-------- Downloading and compiling Python 2.7.13 from source -------"
 
     wget -q -O $HOME_PATH/Python-2.7.13.tgz https://www.python.org/ftp/python/2.7.13/Python-2.7.13.tgz
     tar xfz $HOME_PATH/Python-2.7.13.tgz -C $HOME_PATH/
@@ -63,18 +67,18 @@ Vagrant.configure("2") do |config|
     mkdir $HOME_PATH/setup
     make &>> $HOME_PATH/setup/python_build.log
 
-    echo -e "\n---------------- Installing optimized Python 2.7.13 ----------------\n"
+    echo -e "---------------- Installing optimized Python 2.7.13 ----------------"
 
     make altinstall &>> $HOME_PATH/setup/python_build.log
     cd  # move out of directory to be deleted
     rm -rf $HOME_PATH/Python-2.7.13*
 
     # Add path to Python 2.7.13 binary in user's bashrc file
-    echo -e "\n# Adding path to Python 2.7.13 binary" >> $HOME_PATH/.bashrc
+    echo -e "# Adding path to Python 2.7.13 binary" >> $HOME_PATH/.bashrc
     echo "PATH=$PATH:/usr/local/lib/python2.7.13/bin" >> $HOME_PATH/.bashrc
     echo "export PATH" >> $HOME_PATH/.bashrc
 
-    echo -e "\n----------- Installing pip, setuptools from Python 2.7.13 ----------\n"
+    echo -e "----------- Installing pip, setuptools from Python 2.7.13 ----------"
 
     $PYTHON_PATH -m ensurepip
     $PIP_PATH install --upgrade pip setuptools
@@ -85,27 +89,26 @@ Vagrant.configure("2") do |config|
     $PIP_PATH install virtualenv
     $PIP_PATH install virtualenvwrapper
 
-
-    echo -e "\n------------- Setup virtualenv and virtualenvwrapper ---------------\n"
+    echo -e "------------- Setup virtualenv and virtualenvwrapper ---------------"
 
     mkdir -m775 $HOME_PATH/.virtualenvs  # default virtualenv directory
     chown vagrant:vagrant $HOME_PATH/.virtualenvs/  # script runs as root, change owner to vagrant
-    echo -e "\n# Set Python for Virtualenv" >> $HOME_PATH/.bashrc
+    echo -e "# Set Python for Virtualenv" >> $HOME_PATH/.bashrc
     echo "export VIRTUALENV_PYTHON=$PYTHON_PATH" >> $HOME_PATH/.bashrc
-    echo -e "\n# Set variables for Virtualenvwrapper" >> $HOME_PATH/.bashrc
+    echo -e "# Set variables for Virtualenvwrapper" >> $HOME_PATH/.bashrc
     echo "export WORKON_HOME=$HOME_PATH/.virtualenvs" >> $HOME_PATH/.bashrc
     echo "export VIRTUALENVWRAPPER_PYTHON=$PYTHON_PATH" >> $HOME_PATH/.bashrc
     echo "export VIRTUALENVWRAPPER_VIRTUALENV=$PYTHON_BASEPATH/bin/virtualenv" >> $HOME_PATH/.bashrc
     echo "export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--system-site-packages'" >> $HOME_PATH/.bashrc
     echo "source $PYTHON_BASEPATH/bin/virtualenvwrapper.sh" >> $HOME_PATH/.bashrc
     
-    echo -e "\n------------------------ Installing NodeJS -------------------------\n"
+    echo -e "------------------------ Installing NodeJS -------------------------"
 
     curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
     apt-get -q -y install nodejs
     apt-get -q -y install build-essential  # install native add-ons from npm
 
-    echo -e "\n----------------- Install global Linux utilities -------------------\n"
+    echo -e "----------------- Install global Linux utilities -------------------"
 
     # this should be installed via python2.7.13 above
     #apt-get install -y python-pip 
@@ -120,34 +123,31 @@ Vagrant.configure("2") do |config|
     apt-get install -y ntp
     service ntp restart && date -u
 
-    echo -e "\n------------------- Install Sound utilities -----------------------\n"
+    #echo -e "------------------- Install Sound utilities -----------------------"
 
-    wget https://code.launchpad.net/~ubuntu-audio-dev/+archive/ubuntu/alsa-daily/+files/oem-audio-hda-daily-dkms_0.201708070416~ubuntu14.04.1_all.deb
-    sudo dpkg -i oem-audio-hda-daily-dkms_0.201708070416~ubuntu14.04.1_all.deb
-    rm -f oem-audio-hda-daily-dkms_0.201708070416~ubuntu14.04.1_all.deb
+    #wget https://code.launchpad.net/~ubuntu-audio-dev/+archive/ubuntu/alsa-daily/+files/oem-audio-hda-daily-dkms_0.201708070416~ubuntu14.04.1_all.deb
+    #sudo dpkg -i oem-audio-hda-daily-dkms_0.201708070416~ubuntu14.04.1_all.deb
+    #rm -f oem-audio-hda-daily-dkms_0.201708070416~ubuntu14.04.1_all.deb
 
-    apt-get -y install dkms
+    #apt-get -y install dkms
     
-    #apt-get install -y alsa-oss libasound2 libasound2-plugins gstreamer0.10-pulseaudio ubuntu-restricted-extras
-    apt-get install -y pulseaudio
-    apt-get install -y alsa-base
+    #apt-get install -y pulseaudio
+    #apt-get install -y alsa-base
 
     # put vagrant user in audio group
-    usermod -a -G audio vagrant 
+    #usermod -a -G audio vagrant 
     # associate the audio card
-    modprobe -v snd-hda-intel 
+    #modprobe -v snd-hda-intel 
 
-    echo "###################################################################"
-    echo "DON'T FORGET TO RUN alsamixer TO UNMUTE & RAISE VOLUME FOR SPEAKERS"
-    echo "MAY NEED TO REBOOT FOR DRIVERS TO KICK IN"
-    echo "###################################################################"
+    #echo "###################################################################"
+    #echo "DON'T FORGET TO RUN alsamixer TO UNMUTE & RAISE VOLUME FOR SPEAKERS"
+    #echo "MAY NEED TO REBOOT FOR DRIVERS TO KICK IN"
+    #echo "###################################################################"
 
     
-    echo -e "\n------------------- Install Google Cloud? -----------------------\n"
-    echo -e "\nInstructions here: https://cloud.google.com/sdk/docs/quickstart-linux"
+    echo -e "------------------- Install Google Cloud? -----------------------"
+    echo -e "Instructions here: https://cloud.google.com/sdk/docs/quickstart-linux"
     
   SHELL
-
-  config.vm.provision "file", source: "~/.aws", destination: "~/"
 
 end
