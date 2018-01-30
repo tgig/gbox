@@ -30,6 +30,14 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 3000, host: 3000, auto_correct: true
   config.vm.network "forwarded_port", guest: 8888, host: 8888, auto_correct: true
 
+  # OrientDB
+  # config.vm.network "forwarded_port", guest: 2424, host: 2424, auto_correct: true
+  # config.vm.network "forwarded_port", guest: 2480, host: 2480, auto_correct: true
+
+  # ArangoDB
+  config.vm.network "forwarded_port", guest: 8529, host: 8529, auto_correct: true
+  config.vm.network "forwarded_port", guest: 8530, host: 8530, auto_correct: true
+
   config.vm.synced_folder "/Users/travis/Documents", "/code"
   #config.vm.provision "file", source: "~/.aws", destination: "~/"
   config.vm.synced_folder "/Users/travis/.aws", "/home/vagrant/.aws"
@@ -122,6 +130,24 @@ Vagrant.configure("2") do |config|
     apt-get install -y python-psycopg2
     apt-get install -y ntp
     service ntp restart && date -u
+
+    #echo -e "------------------- Install React -----------------------"    
+
+    npm install -g create-react-app
+
+    #echo -e "------------------ Install GCloud -----------------------"
+
+    # Create an environment variable for the correct distribution
+    export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+
+    # Add the Cloud SDK distribution URI as a package source
+    echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+    # Import the Google Cloud Platform public key
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+    # Update the package list and install the Cloud SDK
+    apt-get update && sudo apt-get install google-cloud-sdk
 
     #echo -e "------------------- Install Sound utilities -----------------------"
 
